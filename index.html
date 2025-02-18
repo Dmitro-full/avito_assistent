@@ -4,12 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Утилиты</title>
-    
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
-
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -98,84 +92,59 @@
     <div class="navbar">
         <a href="javascript:void(0)" onclick="switchSection('dateSection')">Преобразование дат</a>
         <a href="javascript:void(0)" onclick="switchSection('photoSection')">Обработка фотографий</a>
-        <a href="javascript:void(0)" onclick="switchSection('textGenerationSection')">Генерация текста</a> 
+        <a href="javascript:void(0)" onclick="switchSection('textGenerationSection')">Генерация текста</a> <!-- Новая ссылка -->
     </div>
 
-    <!-- Основной контент -->
-    <div id="mainContent" style="display:none;">
-        <!-- Страница для преобразования дат -->
-        <div id="dateSection" class="container active">
-            <h2>Преобразование дат</h2>
-            <textarea id="dateInput" rows="5" placeholder="Введите даты в формате DD.MM.YYYY HH:MM..."></textarea>
-            <input type="number" id="shiftMinutes" placeholder="Минуты для сдвига">
-            <button onclick="shiftDates()">Преобразовать</button>
-            <h3>Результат:</h3>
-            <textarea id="output" rows="5" readonly></textarea>
-            <button onclick="copyToClipboard()">Скопировать</button>
+    <!-- Страница для преобразования дат -->
+    <div id="dateSection" class="container active">
+        <h2>Преобразование дат</h2>
+        <textarea id="dateInput" rows="5" placeholder="Введите даты в формате DD.MM.YYYY HH:MM..."></textarea>
+        <input type="number" id="shiftMinutes" placeholder="Минуты для сдвига">
+        <button onclick="shiftDates()">Преобразовать</button>
+        <h3>Результат:</h3>
+        <textarea id="output" rows="5" readonly></textarea>
+        <button onclick="copyToClipboard()">Скопировать</button>
+    </div>
+
+    <!-- Страница для обработки фотографий -->
+    <div id="photoSection" class="container">
+        <h2>Пакетная обработка фотографий</h2>
+        <input type="file" id="imageInput" multiple accept="image/*" onchange="previewImages()">
+        <button onclick="processImages()">Обработать фотографии</button>
+
+        <div class="preview-container">
+            <h3>Предпросмотр исходных фото:</h3>
+            <div id="originalPreview" class="image-preview"></div>
+
+            <h3>Предпросмотр обработанных фото:</h3>
+            <div id="processedPreview" class="image-preview processed-preview"></div>
         </div>
 
-        <!-- Страница для обработки фотографий -->
-        <div id="photoSection" class="container">
-            <h2>Пакетная обработка фотографий</h2>
-            <input type="file" id="imageInput" multiple accept="image/*" onchange="previewImages()">
-            <button onclick="processImages()">Обработать фотографии</button>
+        <canvas id="canvas" style="display:none;"></canvas>
 
-            <div class="preview-container">
-                <h3>Предпросмотр исходных фото:</h3>
-                <div id="originalPreview" class="image-preview"></div>
+        <button id="downloadBtn" style="display:none;" onclick="downloadImages()">Скачать обработанные фото</button>
+    </div>
 
-                <h3>Предпросмотр обработанных фото:</h3>
-                <div id="processedPreview" class="image-preview processed-preview"></div>
-            </div>
+    <!-- Страница для генерации текста -->
+    <div id="textGenerationSection" class="container">
+        <h2>Генерация текста</h2>
+        
+        <textarea id="condition1" rows="3" placeholder="Условия 1"></textarea>
+        <textarea id="condition2" rows="3" placeholder="Условия 2"></textarea>
+        <textarea id="condition3" rows="3" placeholder="Условия 3"></textarea>
+        <textarea id="condition4" rows="3" placeholder="Условия 4"></textarea>
+        <textarea id="condition5" rows="3" placeholder="Условия 5"></textarea>
 
-            <canvas id="canvas" style="display:none;"></canvas>
+        <button onclick="generateText()">Генерировать текст</button>
+        
+        <h3>Результат генерации:</h3>
+        <textarea id="generatedText" rows="5" readonly></textarea>
 
-            <button id="downloadBtn" style="display:none;" onclick="downloadImages()">Скачать обработанные фото</button>
-        </div>
-
-        <!-- Страница для генерации текста -->
-        <div id="textGenerationSection" class="container">
-            <h2>Генерация текста</h2>
-            
-            <textarea id="condition1" rows="3" placeholder="Условия 1"></textarea>
-            <textarea id="condition2" rows="3" placeholder="Условия 2"></textarea>
-            <textarea id="condition3" rows="3" placeholder="Условия 3"></textarea>
-            <textarea id="condition4" rows="3" placeholder="Условия 4"></textarea>
-            <textarea id="condition5" rows="3" placeholder="Условия 5"></textarea>
-
-            <button onclick="generateText()">Генерировать текст</button>
-            
-            <h3>Результат генерации:</h3>
-            <textarea id="generatedText" rows="5" readonly></textarea>
-
-            <button onclick="copyToClipboard()">Скопировать результат</button>
-        </div>
+        <button onclick="copyToClipboard()">Скопировать результат</button>
     </div>
 
     <script>
-        // Инициализация Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyAOMSRAcIMruMgxDQIAHFCUSgHMz_wuPiA",
-            authDomain: "avito-assistent.firebaseapp.com",
-            projectId: "avito-assistent",
-            storageBucket: "avito-assistent.firebasestorage.app",
-            messagingSenderId: "925248796468",
-            appId: "1:925248796468:web:1fa001e3d6b766d5bc1761",
-            measurementId: "G-W2N3MQCWGX"
-        };
-
-        firebase.initializeApp(firebaseConfig);
-
-        // Проверка авторизации
-        firebase.auth().onAuthStateChanged(user => {
-            if (!user) {
-                window.location.href = "login.html"; // Перенаправление на страницу входа
-            } else {
-                document.getElementById("mainContent").style.display = "block"; 
-            }
-        });
-
-        // Функции для переключения между разделами
+        // Функция для переключения между разделами
         function switchSection(sectionId) {
             let containers = document.querySelectorAll('.container');
             containers.forEach(container => {
@@ -313,13 +282,16 @@
 
             let generatedText = `На основе введённых условий:\n\n`;
 
-            generatedText += `Условие 1: ${condition1}\n`;
-            generatedText += `Условие 2: ${condition2}\n`;
-            generatedText += `Условие 3: ${condition3}\n`;
-            generatedText += `Условие 4: ${condition4}\n`;
-            generatedText += `Условие 5: ${condition5}\n`;
+            if (condition1) generatedText += `Условие 1: ${condition1}\n`;
+            if (condition2) generatedText += `Условие 2: ${condition2}\n`;
+            if (condition3) generatedText += `Условие 3: ${condition3}\n`;
+            if (condition4) generatedText += `Условие 4: ${condition4}\n`;
+            if (condition5) generatedText += `Условие 5: ${condition5}\n`;
 
-            generatedText += `\nГенерация текста завершена.`;
+            generatedText += `\nГенерированный текст на основе всех условий: \n\n`;
+
+            // Здесь можно добавить логику для генерации текста (например, через API или искусственный интеллект)
+            generatedText += `Текст сгенерирован на основе условий. (Добавьте реальную логику генерации)`;
 
             document.getElementById("generatedText").value = generatedText;
         }
